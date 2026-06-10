@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Eventos — Operação & Inteligência</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;background:#f0efe8;color:#1a1a18;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem 4rem}
+.shell{width:100%;max-width:680px}
+.app{background:#f0efe8;border-radius:20px;overflow:hidden;border:0.5px solid #d3d1c7}
+.screen{display:none;flex-direction:column}
+.screen.active{display:flex}
+
+/* HOME */
+.home-hero{padding:1.75rem 1.5rem 1.25rem;background:#fff;border-bottom:0.5px solid #e0dfd8}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:#888780;margin-bottom:8px}
+.home-title{font-size:22px;font-weight:600;color:#1a1a18;line-height:1.2;margin-bottom:6px}
+.home-sub{font-size:13px;color:#5f5e5a;line-height:1.6}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#e0dfd8;border-bottom:0.5px solid #e0dfd8}
+.stat{background:#fff;padding:14px 16px}
+.stat-n{font-size:20px;font-weight:600;color:#1a1a18}
+.stat-l{font-size:11px;color:#888780;margin-top:3px}
+.home-areas{padding:1rem;display:flex;flex-direction:column;gap:8px}
+.area-card{background:#fff;border:0.5px solid #e0dfd8;border-radius:14px;padding:15px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:all .15s;text-decoration:none}
+.area-card:hover{border-color:#b4b2a9;transform:translateY(-1px)}
+.aicon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.ainfo{flex:1}
+.aname{font-size:14px;font-weight:500;color:#1a1a18;margin-bottom:3px}
+.ameta{font-size:12px;color:#888780}
+.achev{font-size:17px;color:#b4b2a9}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;gap:10px;padding:13px 15px;background:#fff;border-bottom:0.5px solid #e0dfd8}
+.back{font-size:21px;color:#5f5e5a;cursor:pointer;display:flex;align-items:center;padding:2px;border:none;background:none;font-family:inherit}
+.back:hover{color:#1a1a18}
+.topbar-title{font-size:14px;font-weight:500;color:#1a1a18}
+
+/* AREA */
+.area-hero{padding:16px;background:#fff;border-bottom:0.5px solid #e0dfd8;display:flex;align-items:flex-start;gap:13px}
+.area-hero-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.area-hero-title{font-size:17px;font-weight:600;color:#1a1a18;margin-bottom:5px}
+.area-hero-sub{font-size:13px;color:#5f5e5a;line-height:1.5}
+.topics-list{padding:.875rem 1rem 1.5rem;display:flex;flex-direction:column;gap:8px}
+.topic-card{background:#fff;border:0.5px solid #e0dfd8;border-radius:14px;overflow:hidden;transition:border-color .15s}
+.topic-card:hover{border-color:#b4b2a9}
+.topic-head{display:flex;align-items:center;gap:10px;padding:14px 15px;cursor:pointer;user-select:none}
+.tdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.tname{flex:1;font-size:14px;font-weight:500;color:#1a1a18}
+.tbadges{display:flex;gap:5px}
+.tb{font-size:11px;padding:3px 9px;border-radius:8px;font-weight:500}
+.tb-r{background:#fef2f2;color:#b91c1c}
+.tb-g{background:#f0fdf4;color:#166534}
+.tchev{font-size:14px;color:#b4b2a9;transition:transform .2s;flex-shrink:0}
+.tchev.open{transform:rotate(180deg)}
+.topic-body{display:none;border-top:0.5px solid #f0efe8}
+.topic-body.open{display:block}
+.pains-block{padding:13px 15px}
+.blk-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:5px;margin-bottom:9px}
+.lbl-r{color:#b91c1c}.lbl-g{color:#166534}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip-r{font-size:12px;padding:4px 11px;border-radius:8px;background:#fef2f2;color:#b91c1c;border:0.5px solid #fecaca}
+.sols-block{padding:13px 15px;border-top:0.5px solid #f0efe8;background:#fafaf8}
+.sol-btn{display:inline-flex;align-items:center;gap:7px;margin-top:9px;font-size:13px;padding:8px 15px;border-radius:9px;border:0.5px solid #d3d1c7;background:#fff;color:#1a1a18;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500}
+.sol-btn:hover{background:#f0efe8;border-color:#888780}
+
+/* DETAIL */
+.detail-hero{padding:18px 16px;background:#fff;border-bottom:0.5px solid #e0dfd8}
+.detail-eyebrow{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:#888780;margin-bottom:7px}
+.detail-title{font-size:18px;font-weight:600;color:#1a1a18;margin-bottom:7px}
+.detail-desc{font-size:13px;color:#5f5e5a;line-height:1.65}
+.detail-body{padding:.875rem 1rem 2rem;display:flex;flex-direction:column;gap:10px}
+.section-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888780;padding:0 2px;margin-top:4px}
+
+/* STEPS */
+.step-card{background:#fff;border:0.5px solid #e0dfd8;border-radius:14px;overflow:hidden}
+.step-head{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;user-select:none}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.step-title-txt{flex:1;font-size:13px;font-weight:500;color:#1a1a18}
+.step-chev{font-size:14px;color:#b4b2a9;transition:transform .2s}
+.step-chev.open{transform:rotate(180deg)}
+.step-body{display:none;padding:13px 15px;border-top:0.5px solid #f0efe8;background:#fafaf8}
+.step-body.open{display:block}
+.step-desc{font-size:13px;color:#5f5e5a;line-height:1.65;margin-bottom:11px}
+.tip-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#5f5e5a;line-height:1.5;margin-bottom:6px}
+.tip-row:last-child{margin-bottom:0}
+.tip-row i{font-size:13px;flex-shrink:0;margin-top:2px}
+
+/* TOOLS CARD */
+.tools-card{background:#fff;border:0.5px solid #e0dfd8;border-radius:14px;padding:15px}
+.tools-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#888780;margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.tool-row{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:0.5px solid #f0efe8}
+.tool-row:last-child{border-bottom:none;padding-bottom:0}
+.tool-icon-w{font-size:17px;color:#888780}
+.tool-name{font-size:13px;font-weight:500;color:#1a1a18}
+.tool-desc{font-size:12px;color:#888780;margin-top:1px}
+
+/* RESULT CARD */
+.result-card{background:#f0fdf4;border:0.5px solid #bbf7d0;border-radius:14px;padding:15px}
+.result-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#166534;margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.result-row{display:flex;align-items:flex-start;gap:9px;font-size:13px;color:#166534;margin-bottom:7px;line-height:1.5}
+.result-row:last-child{margin-bottom:0}
+.result-row i{font-size:15px;flex-shrink:0;margin-top:1px}
+
+/* FOOTER */
+.footer{text-align:center;padding-top:2rem;font-size:12px;color:#b4b2a9}
+
+@media(max-width:480px){
+  body{padding:0}
+  .app{border-radius:0;border-left:none;border-right:none}
+  .shell{max-width:100%}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="app">
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <div class="eyebrow">Operação &amp; Inteligência de Eventos</div>
+    <div class="home-title">Diagnóstico de dores</div>
+    <div class="home-sub">Selecione uma área para ver os problemas identificados e como resolvemos cada um, passo a passo.</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n">6</div><div class="stat-l">Áreas críticas</div></div>
+    <div class="stat"><div class="stat-n">18</div><div class="stat-l">Categorias</div></div>
+    <div class="stat"><div class="stat-n">+20</div><div class="stat-l">Anos de exp.</div></div>
+  </div>
+  <div class="home-areas" id="home-areas"></div>
+</div>
+
+<!-- AREA -->
+<div class="screen" id="screen-area">
+  <div class="topbar">
+    <button class="back" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+    <span class="topbar-title" id="area-topbar-title"></span>
+  </div>
+  <div class="area-hero">
+    <div class="area-hero-icon" id="area-hero-icon"></div>
+    <div>
+      <div class="area-hero-title" id="area-hero-title"></div>
+      <div class="area-hero-sub" id="area-hero-sub"></div>
+    </div>
+  </div>
+  <div class="topics-list" id="topics-list"></div>
+</div>
+
+<!-- DETAIL -->
+<div class="screen" id="screen-detail">
+  <div class="topbar">
+    <button class="back" id="detail-back"><i class="ti ti-arrow-left"></i></button>
+    <span class="topbar-title" id="detail-topbar-title"></span>
+  </div>
+  <div class="detail-hero">
+    <div class="detail-eyebrow" id="detail-eyebrow"></div>
+    <div class="detail-title" id="detail-title"></div>
+    <div class="detail-desc" id="detail-desc"></div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+</div>
+<div class="footer">Operação &amp; Inteligência de Eventos · Gestão ponta a ponta</div>
+</div>
+
+<script>
+const areas=[
+  {id:"plan",label:"Planejamento",icon:"ti-map-2",color:"#534AB7",dot:"#7F77DD",
+   desc:"Estruturação completa antes do evento começar — escopo, cronograma e dimensionamento corretos desde o início.",
+   items:[
+    {name:"Início do projeto",
+     pains:["Não sei por onde começar","Evento sem escopo claro","Objetivos pouco definidos","Falta de roadmap operacional"],
+     desc:"O início é onde a maioria dos eventos falha. Sem escopo e objetivos claros, tudo o que vem depois é improvisação.",
+     steps:[
+       {title:"Reunião de kickoff estruturada",col:"#534AB7",
+        desc:"Antes de qualquer ação, reunimos todos os decisores para alinhar o que é o evento, para quem é, e o que define sucesso.",
+        tips:["Definir objetivo principal do evento (negócio, relacionamento, lançamento)","Mapear todos os stakeholders e seus papéis","Estabelecer critérios de sucesso mensuráveis","Documentar restrições: budget, datas e locais"]},
+       {title:"Criação do briefing executivo",col:"#534AB7",
+        desc:"Um documento único que centraliza tudo: o DNA do evento. Qualquer dúvida futura tem resposta aqui.",
+        tips:["Nome, conceito e posicionamento do evento","Público-alvo detalhado com perfil e expectativas","Capacidade, formato e duração","Lista de entregas esperadas por área"]},
+       {title:"Roadmap operacional",col:"#534AB7",
+        desc:"Com o briefing pronto, criamos o mapa de tudo que precisa acontecer, de hoje até o pós-evento.",
+        tips:["Fases do projeto: pré, produção, evento, pós","Marcos críticos com datas e responsáveis","Dependências entre áreas mapeadas","Buffer de tempo para imprevistos em cada fase"]}
+     ],
+     tools:[{icon:"ti-file-description",name:"Briefing executivo",desc:"Template padronizado por tipo de evento"},{icon:"ti-calendar",name:"Roadmap macro",desc:"Cronograma por fase com marcos"},{icon:"ti-users",name:"Mapa de stakeholders",desc:"Quem decide o quê e quando"}],
+     results:["Evento com escopo 100% definido antes de qualquer contratação","Todos sabem o papel e o que se espera deles","Redução de 70% nas dúvidas operacionais durante a execução"]},
+
+    {name:"Cronograma",
+     pains:["Prazos apertados","Entregas desalinhadas","Cronograma atrasado","Sem acompanhamento"],
+     desc:"Um cronograma mal feito é a principal causa de stress em eventos. Atrasos em cascata comprometem tudo.",
+     steps:[
+       {title:"Cronograma master detalhado",col:"#534AB7",
+        desc:"Partimos da data do evento e construímos o cronograma de trás para frente, garantindo que cada prazo é factível.",
+        tips:["Todas as entregas com datas e responsáveis nominais","Prazo real vs prazo ideal com buffer embutido","Sinalização de marcos críticos que travam outros","Versão visual para apresentar ao cliente"]},
+       {title:"Rotina de acompanhamento",col:"#534AB7",
+        desc:"Cronograma sem revisão é papel. Criamos uma cadência de check que mantém tudo no trilho.",
+        tips:["Reunião semanal de 30min com leads de cada área","Status rápido: verde, amarelo ou vermelho por entrega","Ação imediata para itens em amarelo","Relatório resumido enviado ao cliente toda segunda-feira"]},
+       {title:"Protocolo de desvio",col:"#534AB7",
+        desc:"Quando algo atrasa — e vai atrasar — temos um plano para não deixar o atraso virar crise.",
+        tips:["Alerta quando prazo cruza 48h de risco","Reunião de emergência em até 2h com decisores","Renegociação formal de prazo com novo plano de ação","Registro de causa raiz para evitar recorrência"]}
+     ],
+     tools:[{icon:"ti-table",name:"Cronograma master",desc:"Excel, Notion ou ClickUp"},{icon:"ti-bell",name:"Alertas de prazo",desc:"Notificações automáticas"},{icon:"ti-chart-bar",name:"Dashboard de progresso",desc:"Visualização por área e responsável"}],
+     results:["Eventos entregues dentro do prazo planejado","Cliente recebe update proativo — nunca fica no escuro","Equipe trabalha com antecedência, não apagando fogo"]},
+
+    {name:"Dimensionamento",
+     pains:["Equipe indefinida","Estrutura inadequada","Recursos insuficientes","Planejamento operacional falho"],
+     desc:"Subestimar o que um evento exige operacionalmente é um erro clássico. Caro, estressante e totalmente evitável.",
+     steps:[
+       {title:"Cálculo técnico de equipe",col:"#534AB7",
+        desc:"Usamos parâmetros testados em +20 anos de eventos para calcular exatamente quantas pessoas cada área precisa.",
+        tips:["Índice de atendimento por tipo de público (1:X)","Escala por turno com sobreposição nos horários de pico","Funções críticas com backup obrigatório","Contingência mínima de 15% em equipe-chave"]},
+       {title:"Estrutura organizacional",col:"#534AB7",
+        desc:"Cada evento tem um organograma claro. Ninguém fica sem saber a quem reportar em campo.",
+        tips:["Diretor de operações como ponto central de decisão","Coordenadores por área: credenciamento, produção, AV, etc.","Supervisores de turno com autonomia definida","Cadeia de escalada de problemas documentada"]},
+       {title:"Mapa de recursos",col:"#534AB7",
+        desc:"Além de pessoas, mapeamos todos os recursos físicos e tecnológicos — sem surpresa no dia.",
+        tips:["Equipamentos listados com especificação técnica","Fornecedores confirmados com prazo de entrega","Plano B para cada recurso crítico","Checklist de recebimento e teste antes do evento"]}
+     ],
+     tools:[{icon:"ti-calculator",name:"Calculadora de equipe",desc:"Por porte, formato e duração"},{icon:"ti-sitemap",name:"Organograma operacional",desc:"Hierarquia clara em campo"},{icon:"ti-checklist",name:"Checklist de recursos",desc:"Por área e categoria"}],
+     results:["Zero surpresa de falta de equipe no dia do evento","Estrutura operacional clara do início ao fim","Recursos confirmados com antecedência mínima de 15 dias"]}
+  ]},
+
+  {id:"equipe",label:"Equipe & Operação",icon:"ti-users",color:"#0F6E56",dot:"#1D9E75",
+   desc:"A operação humana do evento — quem faz o quê, como se comunica e como a execução é controlada em campo.",
+   items:[
+    {name:"Equipe",
+     pains:["Falta de staff","Escala mal distribuída","Equipe insuficiente","Sobrecarga operacional"],
+     desc:"Eventos quebram quando a equipe é insuficiente ou mal distribuída. Montar o time certo é a base de tudo.",
+     steps:[
+       {title:"Banco de talentos especializados",col:"#0F6E56",
+        desc:"Não improvisamos equipe. Temos um banco de profissionais testados em campo, classificados por função e nível.",
+        tips:["Profissionais classificados por área e experiência","Histórico de performance em eventos anteriores","Processos de recrutamento e capacitação internos","Ativação em até 48h para demandas urgentes"]},
+       {title:"Escala inteligente",col:"#0F6E56",
+        desc:"A escala certa coloca as pessoas certas nos momentos certos — sem buracos e sem desperdício.",
+        tips:["Mapeamento de picos de demanda por hora","Turnos sobrepostos nos momentos críticos","Função de cada pessoa descrita na escala","Confirmação de presença 24h antes por todos"]},
+       {title:"Gestão de ausências e contingência",col:"#0F6E56",
+        desc:"Alguém vai faltar. Ter o plano B pronto é o que separa eventos organizados dos caóticos.",
+        tips:["Lista de reservas ativa para cada função-chave","Protocolo de substituição em menos de 1h","Polivalência treinada: cada líder cobre uma função adjacente","Registro de ocorrências para aprimoramento contínuo"]}
+     ],
+     tools:[{icon:"ti-address-book",name:"Banco de staff",desc:"Classificado por função e nível"},{icon:"ti-calendar-stats",name:"Escala inteligente",desc:"Por turno e pico de demanda"},{icon:"ti-shield-check",name:"Plano de contingência",desc:"Substituições mapeadas e prontas"}],
+     results:["Equipe completa e confirmada com 7 dias de antecedência","Substituições executadas em menos de 1 hora","Zero sobrecarga: cada pessoa sabe exatamente o que fazer"]},
+
+    {name:"Coordenação",
+     pains:["Sem liderança operacional","Comunicação entre equipes ruim","Desalinhamento interno","Responsabilidades indefinidas"],
+     desc:"Sem coordenação clara, cada área vira uma ilha. O resultado é ruído, retrabalho e problemas sem dono.",
+     steps:[
+       {title:"Liderança operacional por frente",col:"#0F6E56",
+        desc:"Cada área tem um coordenador sênior com autonomia, responsabilidade e linha direta com o centro de operações.",
+        tips:["Coordenador com experiência mínima de 3 eventos similares","Autonomia clara: o que pode decidir sozinho","Limite de escalada: quando chamar o diretor geral","Posição física definida em campo para fácil acesso"]},
+       {title:"Sistema de comunicação estruturado",col:"#0F6E56",
+        desc:"Em eventos, informação mal transmitida é tão perigosa quanto nenhuma informação. Temos protocolos para isso.",
+        tips:["Rádio ou app dedicado por grupo de área","Linguagem padronizada para chamados (urgente/normal)","Reunião de abertura diária com todos os coordenadores","Reunião de fechamento para registro de ocorrências"]},
+       {title:"Matriz de responsabilidades",col:"#0F6E56",
+        desc:"Antes do evento começar, cada decisão possível já tem um dono. Ninguém fica esperando saber de quem é o problema.",
+        tips:["Matriz RACI por área e tipo de decisão","Distribuição impressa e digital para todos os líderes","Revisão coletiva no briefing final pré-evento","Atualização automática em caso de mudança de escopo"]}
+     ],
+     tools:[{icon:"ti-radio",name:"Comunicação em campo",desc:"Rádio ou app dedicado"},{icon:"ti-table",name:"Matriz RACI",desc:"Responsabilidades claras por decisão"},{icon:"ti-clipboard",name:"Briefing operacional",desc:"Diário, antes da abertura"}],
+     results:["Nenhuma decisão fica sem dono no campo","Tempo de resposta a problemas reduzido em 60%","Equipe confiante e autônoma — sem depender de uma única pessoa"]},
+
+    {name:"Produção",
+     pains:["Montagem problemática","Desmontagem desorganizada","Falhas na execução","Controle operacional fraco"],
+     desc:"A produção física do evento exige controle milimétrico. Uma falha na montagem compromete toda a experiência.",
+     steps:[
+       {title:"Cronograma de montagem detalhado",col:"#0F6E56",
+        desc:"Cada etapa da montagem tem hora de início, responsável e critério de conclusão. Nada fica implícito.",
+        tips:["Sequência lógica: estrutura > elétrica > acabamento > teste","Janelas de entrada por fornecedor para evitar congestionamento","Supervisor de montagem presente em 100% do tempo","Checklist por etapa assinado antes de avançar"]},
+       {title:"Supervisão e controle em campo",col:"#0F6E56",
+        desc:"Presença constante nos pontos críticos. Problema identificado cedo é problema resolvido barato.",
+        tips:["Rondas programadas nos pontos críticos a cada 30 minutos","Registro fotográfico de montagem para evidência e aprendizado","Comunicação imediata de qualquer desvio ao coordenador","Critérios de aceite documentados para cada área do espaço"]},
+       {title:"Protocolo de desmontagem",col:"#0F6E56",
+        desc:"A desmontagem é tão importante quanto a montagem — e quase sempre negligenciada.",
+        tips:["Equipe dedicada exclusivamente à desmontagem","Janelas de saída por fornecedor para logística reversa","Checklist de saída: nada esquecido, nada danificado","Relatório de devoluções e pendências para fechamento"]}
+     ],
+     tools:[{icon:"ti-clock",name:"Cronograma de produção",desc:"Por etapa e responsável"},{icon:"ti-camera",name:"Registro fotográfico",desc:"Evidência e controle"},{icon:"ti-checklist",name:"Checklist de montagem",desc:"Por área e critério de aceite"}],
+     results:["Montagem concluída no prazo com margem para testes","Desmontagem organizada sem perdas ou danos","Relatório completo de produção entregue ao cliente"]}
+  ]},
+
+  {id:"log",label:"Logística",icon:"ti-route",color:"#854F0B",dot:"#EF9F27",
+   desc:"O fluxo físico do evento — como as pessoas entram, circulam, são atendidas e saem com boa experiência.",
+   items:[
+    {name:"Fluxo de pessoas",
+     pains:["Filas excessivas","Entrada desorganizada","Saída confusa","Fluxo interno mal planejado"],
+     desc:"Fluxo mal planejado cria caos visível. Fila na entrada, confusão nos corredores — tudo isso contamina a percepção do evento.",
+     steps:[
+       {title:"Projeto de fluxo e simulação",col:"#854F0B",
+        desc:"Antes do evento, simulamos o movimento de pessoas no espaço — identificando gargalos antes que virem problema.",
+        tips:["Mapeamento de pontos de entrada, circulação e saída","Simulação de capacidade por hora com projeção de pico","Identificação de cruzamentos de fluxo que geram confusão","Ajuste do layout com base na simulação"]},
+       {title:"Sinalização estratégica",col:"#854F0B",
+        desc:"Participante que sabe para onde ir não precisa perguntar. Boa sinalização elimina filas e reduz demanda de equipe.",
+        tips:["Sinalização testada por alguém que nunca esteve no local","Indicações em altura de olho e altura de cabeça","Pontos de informação identificados visualmente","Sinalização de emergência e rotas de saída obrigatórias"]},
+       {title:"Gestão de saída",col:"#854F0B",
+        desc:"A saída é o último contato do participante com o evento — e costuma ser o mais negligenciado.",
+        tips:["Plano de saída escalonada por setor para evitar congestionamento","Orientação de equipe nos pontos críticos de saída","Coordenação com estacionamento e transporte externo","Checklist de saída: espaço vazio e seguro antes do encerramento"]}
+     ],
+     tools:[{icon:"ti-map",name:"Planta de fluxo",desc:"Layout otimizado por circulação"},{icon:"ti-sign-right",name:"Sinalização",desc:"Projeto visual e físico"},{icon:"ti-clock",name:"Plano de saída",desc:"Escalonado por setor"}],
+     results:["Fila de entrada zerada em até 20 minutos do pico","Participante navega no espaço sem precisar perguntar","Saída organizada sem congestionamento ou incidentes"]},
+
+    {name:"Credenciamento",
+     pains:["Atendimento lento","Check-in desorganizado","Falta de equipe","Problemas de validação"],
+     desc:"O credenciamento é a primeira impressão do evento. Fila longa e check-in lento contaminam tudo que vem depois.",
+     steps:[
+       {title:"Dimensionamento técnico",col:"#854F0B",
+        desc:"Calculamos o número de pontos e pessoas com base na projeção de fluxo — não no feeling.",
+        tips:["1 ponto de credenciamento para cada 150 a 200 pessoas por hora","Projeção de pico baseada no histórico de chegadas","Equipe de reforço disponível nos primeiros 30 minutos","Configuração de espaço que evita cruzamento de fluxos"]},
+       {title:"Tecnologia que elimina atrito",col:"#854F0B",
+        desc:"Papel e caneta é o passado. Implementamos soluções digitais que tornam o check-in fluido e sem erro.",
+        tips:["QR Code individual por inscrito com validação offline","Totem de autoatendimento para tipos de ingresso simples","Lista de backup impressa por ordem alfabética","Integração com plataforma de inscrições em tempo real"]},
+       {title:"Gestão de filas e exceções",col:"#854F0B",
+        desc:"Mesmo com tecnologia, filas formam. O protocolo certo as dissolve antes de virar problema.",
+        tips:["Sinalização visual de expectativa de espera","Equipe volante para triagem e resolução rápida","Fila prioritária para acessibilidade, VIPs e imprensa","Protocolo de escalada para casos complexos"]}
+     ],
+     tools:[{icon:"ti-qrcode",name:"Validação por QR Code",desc:"Check-in em segundos"},{icon:"ti-device-tablet",name:"Totem de autoatendimento",desc:"Reduz pontos físicos necessários"},{icon:"ti-list",name:"Lista de backup",desc:"Contingência 100% offline"}],
+     results:["Tempo médio de check-in abaixo de 45 segundos","Fila zerada nos primeiros 15 minutos de pico","Primeira impressão do participante: positiva e organizada"]},
+
+    {name:"Infraestrutura",
+     pains:["Equipamentos atrasados","Problemas técnicos","Logística complexa","Espaço mal aproveitado"],
+     desc:"Infraestrutura que falha paralisa o evento. Prevenir é mais barato — e muito menos estressante — do que remediar.",
+     steps:[
+       {title:"Cronograma de montagem e recebimento",col:"#854F0B",
+        desc:"Tudo chega no momento certo, no lugar certo. Janelas de entrega evitam congestionamento e perda de controle.",
+        tips:["Janelas de entrega por fornecedor com hora de início e fim","Mapa de dock e área de armazenamento temporário","Sequência de montagem: estrutura > elétrica > acabamento","Supervisor de montagem presente em 100% do tempo"]},
+       {title:"Teste e certificação técnica",col:"#854F0B",
+        desc:"Nenhum equipamento entra em operação sem passar por teste. Surpresa técnica no dia do evento é inaceitável.",
+        tips:["Teste completo de som, vídeo e luz 24h antes","Simulação de fluxo com equipe de operação","Checklist técnico assinado por responsável de área","Técnico dedicado presente durante todo o evento"]},
+       {title:"Fornecedor de backup ativo",col:"#854F0B",
+        desc:"Para cada equipamento crítico, temos um plano B já acionado — não apenas identificado.",
+        tips:["Fornecedor de backup contratado para AV e internet","Equipamentos sobressalentes em estoque no local","Tempo máximo de substituição definido por equipamento","Protocolo de acionamento do backup em menos de 10 minutos"]}
+     ],
+     tools:[{icon:"ti-truck",name:"Controle de logística",desc:"Entradas e saídas registradas"},{icon:"ti-checklist",name:"Checklist técnico",desc:"Por equipamento e área"},{icon:"ti-tool",name:"Suporte técnico",desc:"Dedicado e presente em campo"}],
+     results:["Zero falha técnica não prevista durante o evento","Montagem concluída no prazo com margem de testes","Participante nunca percebe o trabalho de bastidores"]}
+  ]},
+
+  {id:"forn",label:"Fornecedores",icon:"ti-truck",color:"#993C1D",dot:"#D85A30",
+   desc:"Gestão completa da cadeia de fornecedores — da contratação ao alinhamento, entrega e encerramento.",
+   items:[
+    {name:"Gestão de fornecedores",
+     pains:["Muitos fornecedores simultâneos","Falta de centralização","Comunicação falha","Dependências não controladas"],
+     desc:"Quanto mais fornecedores, mais pontos de falha. Centralizar a gestão é o que transforma caos em controle.",
+     steps:[
+       {title:"Central única de fornecedores",col:"#993C1D",
+        desc:"Todos os fornecedores gerenciados em um único ponto de controle — com status, contatos e histórico.",
+        tips:["Planilha ou sistema com todos os fornecedores do evento","Status atualizado por responsável interno","Contato principal e backup de cada empresa","Classificação por criticidade: o que paralisa o evento se falhar"]},
+       {title:"Reuniões de alinhamento estruturadas",col:"#993C1D",
+        desc:"Alinhamento verbal não basta. Criamos momentos formais de confirmação para evitar surpresas de última hora.",
+        tips:["Reunião de kick-off com fornecedores-chave na contratação","Check semanal com fornecedores de entrega crítica","Reunião geral pré-evento 48h antes com todos os responsáveis","Ata distribuída após cada reunião com ações e prazos"]},
+       {title:"Mapeamento de dependências",col:"#993C1D",
+        desc:"Fornecedor A depende do fornecedor B? Se B atrasar, A paralisa? Mapeamos todas essas cadeias antes.",
+        tips:["Diagrama de dependências entre fornecedores-chave","Identificação de fornecedores com risco de atraso histórico","Plano B ativo para cada dependência crítica","Comunicação proativa quando uma dependência está em risco"]}
+     ],
+     tools:[{icon:"ti-table",name:"Painel de fornecedores",desc:"Status e contatos centralizados"},{icon:"ti-sitemap",name:"Mapa de dependências",desc:"Quem depende de quem"},{icon:"ti-notes",name:"Ata de reuniões",desc:"Ações e prazos documentados"}],
+     results:["Visibilidade total de todos os fornecedores em tempo real","Atrasos detectados com antecedência mínima de 72h","Zero surpresa por dependência não mapeada"]},
+
+    {name:"Entregas e qualidade",
+     pains:["Atrasos","Falta de acompanhamento","Qualidade inconsistente","Pendências operacionais"],
+     desc:"Fornecedor que entrega tarde ou entrega errado compromete a operação. Acompanhar é tão importante quanto contratar.",
+     steps:[
+       {title:"Cronograma de entregas com confirmação",col:"#993C1D",
+        desc:"Cada entrega tem data, hora e protocolo de confirmação. Nenhum item chega de surpresa — ou deixa de chegar.",
+        tips:["Cronograma detalhado por fornecedor e tipo de entrega","Confirmação obrigatória 48h antes de cada entrega","Janela de tolerância máxima definida por criticidade","Acionamento automático do plano B se confirmação não vier"]},
+       {title:"Checklist de recebimento",col:"#993C1D",
+        desc:"Receber sem conferir é o mesmo que não conferir. Cada entrega passa por um processo de aceite formal.",
+        tips:["Checklist específico por categoria de fornecedor","Registro fotográfico de recebimento para evidência","Critérios de aceite documentados e comunicados ao fornecedor","Termo de recebimento assinado antes da liberação do pagamento"]},
+       {title:"Gestão de pendências",col:"#993C1D",
+        desc:"Pendências surgem. O que diferencia é ter um processo para fechar cada uma antes do evento.",
+        tips:["Lista única de pendências com dono e prazo de resolução","Revisão diária nos 7 dias que antecedem o evento","Escalonamento automático se pendência não for resolvida","Relatório final de pendências para uso em contratos futuros"]}
+     ],
+     tools:[{icon:"ti-calendar-check",name:"Cronograma de entregas",desc:"Com confirmações obrigatórias"},{icon:"ti-camera",name:"Registro de recebimento",desc:"Foto e checklist por entrega"},{icon:"ti-alert-circle",name:"Painel de pendências",desc:"Dono e prazo por item"}],
+     results:["100% das entregas confirmadas com 48h de antecedência","Recebimento documentado para cobertura em caso de disputa","Pendências zeradas antes do início do evento"]},
+
+    {name:"Alinhamento de briefing",
+     pains:["Briefing desalinhado","Informações desencontradas","Mudanças sem comunicação","Falta de coordenação geral"],
+     desc:"Fornecedor sem briefing claro entrega o que imaginou, não o que foi pedido. Alinhamento é prevenção.",
+     steps:[
+       {title:"Briefing técnico por fornecedor",col:"#993C1D",
+        desc:"Cada fornecedor recebe um briefing escrito, específico para sua entrega — sem deixar nada implícito.",
+        tips:["Escopo detalhado: o que está e o que não está incluído","Especificações técnicas, estéticas e operacionais","Cronograma de entrega e montagem específico","Contato único do evento para dúvidas e alinhamentos"]},
+       {title:"Protocolo de alterações",col:"#993C1D",
+        desc:"Mudanças de escopo são comuns em eventos. Sem protocolo, viram ruído. Com protocolo, viram aditivos controlados.",
+        tips:["Toda alteração comunicada por escrito com número de versão","Aprovação formal antes de qualquer execução da mudança","Análise de impacto em custo e prazo antes da aprovação","Registro de histórico de alterações acessível a todos"]}
+     ],
+     tools:[{icon:"ti-file-text",name:"Briefing técnico",desc:"Template por categoria"},{icon:"ti-git-branch",name:"Controle de versões",desc:"Histórico de alterações"},{icon:"ti-check",name:"Protocolo de aprovação",desc:"Formal e documentado"}],
+     results:["Fornecedor entrega exatamente o que foi contratado","Alterações de escopo controladas sem surpresa no custo","Conflitos resolvidos com evidência documental"]}
+  ]},
+
+  {id:"orc",label:"Orçamento",icon:"ti-coin",color:"#A32D2D",dot:"#E24B4A",
+   desc:"Controle financeiro completo — do planejamento de custos à rentabilidade e escalabilidade do evento.",
+   items:[
+    {name:"Custos e previsibilidade",
+     pains:["Gastos acima do previsto","Custos ocultos","Falta de previsibilidade financeira","Baixa eficiência operacional"],
+     desc:"Evento sem controle financeiro é um evento que come lucro. Previsibilidade é o que permite tomar decisões seguras.",
+     steps:[
+       {title:"Orçamento detalhado com contingência",col:"#A32D2D",
+        desc:"O orçamento certo prevê não só o que foi planejado, mas também o que pode dar errado.",
+        tips:["Levantamento de todos os custos diretos e indiretos","Buffer de contingência mínimo de 10% do total","Separação de custos fixos e variáveis por área","Aprovação formal do orçamento antes do início das contratações"]},
+       {title:"Mapeamento de custos ocultos",col:"#A32D2D",
+        desc:"Custos ocultos são os que mais surpreendem. Mapeamos os mais comuns com base em histórico real de eventos.",
+        tips:["Taxas de local: limpeza, segurança, energia, estacionamento","Custos de última hora: reforço de equipe, substituição de fornecedor","Logística não prevista: transporte, armazenagem, devolução","Custos de tecnologia: licenças, suporte, dados móveis"]}
+     ],
+     tools:[{icon:"ti-calculator",name:"Planilha de orçamento",desc:"Detalhada por área e categoria"},{icon:"ti-eye",name:"Mapa de custos ocultos",desc:"Baseado em histórico real"},{icon:"ti-chart-pie",name:"Análise de eficiência",desc:"Custo por área operacional"}],
+     results:["Desvio orçamentário médio abaixo de 5%","Nenhum custo oculto relevante sem previsão","Cliente aprova orçamento com confiança e clareza"]},
+
+    {name:"Controle financeiro",
+     pains:["Sem acompanhamento","Aprovações lentas","Orçamento descentralizado","Dificuldade em otimizar recursos"],
+     desc:"Dinheiro gasto sem registro é dinheiro perdido. O controle financeiro garante que cada real tem um destino.",
+     steps:[
+       {title:"Central financeira única",col:"#A32D2D",
+        desc:"Todos os gastos do evento passam por um único ponto de controle — sem descentralização que gera surpresas.",
+        tips:["Uma pessoa responsável pelo controle financeiro do evento","Registro obrigatório de todo comprometimento de verba","Dashboard atualizado em tempo real por área","Relatório semanal com projeção de fechamento"]},
+       {title:"Fluxo de aprovação ágil",col:"#A32D2D",
+        desc:"Aprovação lenta gera atraso. Aprovação sem critério gera estouro. O fluxo certo resolve os dois.",
+        tips:["Alçadas definidas: o que cada nível pode aprovar","Aprovações abaixo do limite resolvidas em até 4h","Aprovações acima do limite com prazo máximo de 24h","Registro de toda aprovação com justificativa"]}
+     ],
+     tools:[{icon:"ti-coin",name:"Dashboard financeiro",desc:"Realizado vs orçado em tempo real"},{icon:"ti-check",name:"Fluxo de aprovação",desc:"Por alçada e prazo"},{icon:"ti-report",name:"Relatório semanal",desc:"Projeção de fechamento"}],
+     results:["Nenhum gasto não autorizado durante o evento","Aprovações em tempo útil sem travar a operação","Fechamento financeiro entregue em até 5 dias úteis"]},
+
+    {name:"Rentabilidade",
+     pains:["Baixo retorno operacional","Investimento mal distribuído","Recursos mal aproveitados","Dificuldade em escalar"],
+     desc:"Evento bom que não gera retorno é evento que não se repete. Rentabilidade é construída antes, durante e depois.",
+     steps:[
+       {title:"Análise de ROI por evento",col:"#A32D2D",
+        desc:"Medimos o retorno de cada evento — financeiro e estratégico — para informar decisões futuras.",
+        tips:["Definição de indicadores de retorno antes do evento","Coleta de dados durante: leads, vendas, mídia espontânea","Relatório de ROI entregue até 15 dias após o evento","Comparativo com benchmarks do setor e eventos anteriores"]},
+       {title:"Modelo de escalabilidade",col:"#A32D2D",
+        desc:"Crescer sem estrutura é crescer com risco. Criamos modelos que permitem escalar sem perder eficiência.",
+        tips:["Mapeamento de custos que crescem linearmente vs fixos","Identificação de alavancas de eficiência por área","Reaproveitamento de processos, templates e fornecedores","Modelo financeiro para novos formatos e portes de evento"]}
+     ],
+     tools:[{icon:"ti-trending-up",name:"Análise de ROI",desc:"Financeiro e estratégico"},{icon:"ti-chart-line",name:"Modelo de escalabilidade",desc:"Custos fixos vs variáveis"},{icon:"ti-repeat",name:"Biblioteca de processos",desc:"Reutilizáveis por evento"}],
+     results:["ROI documentado e apresentável a patrocinadores e diretoria","Custo por participante reduzido a cada edição","Modelo de negócio escalável sem crescimento linear de custo"]}
+  ]},
+
+  {id:"exec",label:"Execução",icon:"ti-calendar-event",color:"#185FA5",dot:"#378ADD",
+   desc:"O dia do evento — controle em tempo real, gestão de imprevistos e garantia da melhor experiência para todos.",
+   items:[
+    {name:"Dia do evento",
+     pains:["Imprevistos operacionais","Sem suporte imediato","Decisões lentas","Problemas simultâneos"],
+     desc:"No dia D, a velocidade de resposta define o sucesso. Imprevisto é inevitável — mas como você reage é uma escolha.",
+     steps:[
+       {title:"War room operacional",col:"#185FA5",
+        desc:"Um centro de comando físico conectado a todas as áreas, ativo do início ao fim do evento.",
+        tips:["Coordenador geral presente no war room 100% do tempo","Rádio com todos os líderes de área aberto","Tela de monitoramento com status por setor","Log de ocorrências atualizado em tempo real"]},
+       {title:"Protocolo de imprevistos",col:"#185FA5",
+        desc:"Para os 20 tipos mais comuns de imprevisto em eventos, temos um script já pronto — sem inventar na hora.",
+        tips:["Categorias: técnico, humano, logístico e externo","Dono de cada categoria com autoridade para resolver","Tempo máximo de resposta por nível de severidade","Comunicação ao cliente: quando e como acionar"]},
+       {title:"Gestão de múltiplos problemas",col:"#185FA5",
+        desc:"Eventos geram demandas paralelas. Quem resolve tudo sozinho não resolve nada bem.",
+        tips:["Priorização por impacto na experiência do participante","Delegação clara: cada problema tem um único dono","Check de 15 em 15 minutos com todos os coordenadores","Revisão das prioridades a cada hora com o time"]}
+     ],
+     tools:[{icon:"ti-device-desktop",name:"War room",desc:"Centro de comando central"},{icon:"ti-alert-triangle",name:"Protocolo de crises",desc:"20 cenários mapeados e prontos"},{icon:"ti-radio",name:"Comunicação em campo",desc:"Todos os líderes conectados"}],
+     results:["Tempo médio de resolução de incidentes abaixo de 8 minutos","Participante nunca percebe 90% dos imprevistos resolvidos","Cliente recebe relatório completo de ocorrências pós-evento"]},
+
+    {name:"Controle em tempo real",
+     pains:["Sem visibilidade operacional","Falha no monitoramento","Sem indicadores","Dificuldade de reação rápida"],
+     desc:"O que não é medido não é gerenciado. Visibilidade em tempo real é o que permite agir antes que o problema escale.",
+     steps:[
+       {title:"Dashboard operacional ao vivo",col:"#185FA5",
+        desc:"Um painel visual que mostra o status de todas as áreas em tempo real — sem precisar ligar para saber.",
+        tips:["Status por área: verde, amarelo, vermelho","Ocorrências abertas e em andamento visíveis para todos os líderes","Atualização obrigatória a cada 15 minutos por coordenador","Histórico de ocorrências acessível para análise posterior"]},
+       {title:"KPIs operacionais por hora",col:"#185FA5",
+        desc:"Indicadores-chave acompanhados hora a hora permitem ajustes antes que desvios virem crises.",
+        tips:["Tempo médio de fila no credenciamento","Percentual de lotação por área do espaço","Ocorrências abertas vs resolvidas por hora","NPS preliminar coletado ao longo do evento"]}
+     ],
+     tools:[{icon:"ti-gauge",name:"Dashboard operacional",desc:"Status ao vivo por área"},{icon:"ti-chart-line",name:"KPIs por hora",desc:"Indicadores operacionais"},{icon:"ti-history",name:"Log de ocorrências",desc:"Histórico completo do evento"}],
+     results:["Nenhuma área fica sem monitoramento por mais de 15 minutos","Desvios detectados em média 40 minutos antes de virarem crise","Relatório operacional completo entregue em até 48h"]},
+
+    {name:"Experiência do participante",
+     pains:["Atendimento inconsistente","Experiência negativa","Reclamações","Baixa percepção de organização"],
+     desc:"O evento pode ter sido tecnicamente perfeito por dentro — mas se o participante sair insatisfeito, falhou.",
+     steps:[
+       {title:"Treinamento de hospitalidade",col:"#185FA5",
+        desc:"Toda a equipe em contato com participantes passa por briefing de postura, linguagem e resolução de demandas.",
+        tips:["Tom de voz, postura e abordagem padronizados","Scripts para as 10 perguntas mais frequentes no evento","Como escalar sem passar impressão de despreparo","Pontos de informação visíveis e bem posicionados no espaço"]},
+       {title:"Jornada do participante mapeada",col:"#185FA5",
+        desc:"Antes do evento, simulamos a experiência completa — da entrada ao encerramento — e eliminamos atritos.",
+        tips:["Simulação de entrada, circulação, alimentação e saída","Pontos críticos de experiência identificados e priorizados","Sinalização revisada por alguém que nunca esteve no local","Teste com usuário real sempre que possível"]},
+       {title:"Feedback em tempo real e pós-evento",col:"#185FA5",
+        desc:"Durante e após o evento, coletamos sinais de satisfação e agimos com base em dados.",
+        tips:["QR Code para feedback rápido em pontos estratégicos","Equipe de hospitalidade com autonomia para resolver queixas","Dashboard de menções em redes sociais durante o evento","NPS enviado em até 2h após o encerramento"]}
+     ],
+     tools:[{icon:"ti-heart",name:"Score de experiência",desc:"Monitorado ao vivo"},{icon:"ti-message",name:"Feedback em tempo real",desc:"QR Code distribuído no evento"},{icon:"ti-chart-line",name:"NPS pós-evento",desc:"Enviado em até 2h"}],
+     results:["NPS médio acima de 70 nos eventos operados","Reclamações resolvidas antes de virarem post negativo","Cliente recebe relatório de experiência com dados reais"]}
+  ]}
+];
+
+let currentAreaId=null;
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function goHome(){show("screen-home")}
+
+function openArea(id){
+  currentAreaId=id;
+  const a=areas.find(x=>x.id===id);
+  document.getElementById("area-topbar-title").textContent=a.label;
+  const ic=document.getElementById("area-hero-icon");
+  ic.style.background=a.dot+"22";ic.style.color=a.dot;
+  ic.innerHTML=`<i class="ti ${a.icon}"></i>`;
+  document.getElementById("area-hero-title").textContent=a.label;
+  document.getElementById("area-hero-sub").textContent=a.desc;
+  const list=document.getElementById("topics-list");
+  list.innerHTML="";
+  a.items.forEach(item=>{
+    const card=document.createElement("div");card.className="topic-card";
+    const head=document.createElement("div");head.className="topic-head";
+    head.innerHTML=`<div class="tdot" style="background:${a.dot}"></div><div class="tname">${item.name}</div><div class="tbadges"><span class="tb tb-r">${item.pains.length} dores</span><span class="tb tb-g">${item.steps.length} passos</span></div><i class="ti ti-chevron-down tchev"></i>`;
+    const body=document.createElement("div");body.className="topic-body";
+    body.innerHTML=`<div class="pains-block"><div class="blk-lbl lbl-r"><i class="ti ti-alert-triangle"></i>Dores identificadas</div><div class="chips">${item.pains.map(p=>`<span class="chip-r">${p}</span>`).join("")}</div></div><div class="sols-block"><div class="blk-lbl lbl-g"><i class="ti ti-circle-check"></i>Solução em ${item.steps.length} passos</div><button class="sol-btn" onclick="openDetail('${a.id}','${item.name.replace(/'/g,"\\'")}')"><i class="ti ti-arrow-right"></i>Ver solução passo a passo</button></div>`;
+    head.onclick=()=>{const o=body.classList.contains("open");body.classList.toggle("open",!o);head.querySelector(".tchev").classList.toggle("open",!o)};
+    card.appendChild(head);card.appendChild(body);list.appendChild(card);
+  });
+  show("screen-area");
+}
+
+function openDetail(aId,itemName){
+  const a=areas.find(x=>x.id===aId);
+  const item=a.items.find(i=>i.name===itemName);
+  document.getElementById("detail-topbar-title").textContent=item.name;
+  document.getElementById("detail-back").onclick=()=>show("screen-area");
+  document.getElementById("detail-eyebrow").textContent=a.label+" · Como resolvemos";
+  document.getElementById("detail-title").textContent=item.name;
+  document.getElementById("detail-desc").textContent=item.desc;
+  const body=document.getElementById("detail-body");body.innerHTML="";
+  const sl=document.createElement("div");sl.className="section-lbl";sl.textContent="Passo a passo";body.appendChild(sl);
+  item.steps.forEach((step,i)=>{
+    const sc=document.createElement("div");sc.className="step-card";
+    const sh=document.createElement("div");sh.className="step-head";
+    sh.innerHTML=`<div class="step-num" style="background:${step.col}22;color:${step.col}">${i+1}</div><div class="step-title-txt">${step.title}</div><i class="ti ti-chevron-down step-chev"></i>`;
+    const sb=document.createElement("div");sb.className="step-body";
+    sb.innerHTML=`<p class="step-desc">${step.desc}</p><div>${step.tips.map(t=>`<div class="tip-row"><i class="ti ti-point" style="color:${step.col}"></i><span>${t}</span></div>`).join("")}</div>`;
+    sh.onclick=()=>{const o=sb.classList.contains("open");sb.classList.toggle("open",!o);sh.querySelector(".step-chev").classList.toggle("open",!o)};
+    sc.appendChild(sh);sc.appendChild(sb);body.appendChild(sc);
+  });
+  if(item.tools){
+    const tl=document.createElement("div");tl.className="section-lbl";tl.style.marginTop="6px";tl.textContent="Ferramentas";body.appendChild(tl);
+    const tc=document.createElement("div");tc.className="tools-card";
+    tc.innerHTML=`<div class="tools-lbl"><i class="ti ti-tool"></i>O que usamos</div>${item.tools.map(t=>`<div class="tool-row"><div class="tool-icon-w"><i class="ti ${t.icon}"></i></div><div><div class="tool-name">${t.name}</div><div class="tool-desc">${t.desc}</div></div></div>`).join("")}`;
+    body.appendChild(tc);
+  }
+  if(item.results){
+    const rl=document.createElement("div");rl.className="section-lbl";rl.style.marginTop="6px";rl.textContent="Resultado esperado";body.appendChild(rl);
+    const rc=document.createElement("div");rc.className="result-card";
+    rc.innerHTML=`<div class="result-lbl"><i class="ti ti-trophy"></i>O que você ganha</div>${item.results.map(r=>`<div class="result-row"><i class="ti ti-circle-check"></i><span>${r}</span></div>`).join("")}`;
+    body.appendChild(rc);
+  }
+  show("screen-detail");
+}
+
+(function renderHome(){
+  const list=document.getElementById("home-areas");
+  areas.forEach(a=>{
+    const c=document.createElement("div");c.className="area-card";
+    c.innerHTML=`<div class="aicon" style="background:${a.dot}22;color:${a.dot}"><i class="ti ${a.icon}"></i></div><div class="ainfo"><div class="aname">${a.label}</div><div class="ameta">${a.items.length} categorias · ${a.items.reduce((s,i)=>s+i.pains.length,0)} dores mapeadas</div></div><i class="ti ti-chevron-right achev"></i>`;
+    c.onclick=()=>openArea(a.id);list.appendChild(c);
+  });
+})();
+</script>
+</body>
+</html>
